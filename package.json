@@ -1,8 +1,8 @@
 {
   "name": "rpi-rgb",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "Implements PWM control of RGB lighting via Raspberry Pi GPIO",
-  "main": "rpi-rgb.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
