@@ -2,7 +2,7 @@
 Implements PWM control of RGB leds for use with Raspberry Pi GPIO in Node.js
 
 ### How to use
-```
+```javascript
 var RgbChannel = require('rpi-rgb');
 var channel1 = new RgbChannel(<red_pin>,<green_pin>,<blue_pin>);
 ```
