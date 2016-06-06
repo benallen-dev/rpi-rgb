@@ -1,7 +1,26 @@
-module.exports = Channel;
+// rpi-rgb
+// Supplies simple method of controlling PWM rgb 
+// lighting using raspberry pi GPIO
+
+module.exports.Channel = Channel;
+module.exports.Colour = Colour;
 
 var gpio = require('wiring-pi');
 var math = require('mathjs');
+
+function Colour (red, green, blue) {
+  this.red = red;
+  this.green = green;
+  this.blue = blue;
+  
+  this.clamp();
+}
+
+Colour.prototype.clamp = function() {
+  this.red = Math.max(0, Math.min(this.red, 100));
+  this.green = Math.max(0, Math.min(this.green, 100));
+  this.blue = Math.max(0, Math.min(this.blue, 100));
+}
 
 // GPIO is set up to use wiringpi pin numbers.
 // See http://wiringpi.com/pins/ for detailed information.
@@ -45,22 +64,11 @@ function Channel(redPin, greenPin, bluePin) {
   }
 };
     
-Channel.prototype.setRgb = function (red, green, blue) {
-  // setRgb(red, green, blue)
-  // returns 0 on success, otherwise returns err
-  if (red < 0 || red > 100) {
-      return ('R value not between 0 and 100');
-  }
-  if (green < 0 || green > 100) {
-      return ('G value not between 0 and 100');
-  }
-  if (blue < 0 || blue > 100) {
-      return ('B value not between 0 and 100');
-  }
+Channel.prototype.setRgb = function (colour) {
   
-  this._valRed = red;
-  this._valGreen = green;
-  this._valBlue = blue;
+  this._valRed = colour.red;
+  this._valGreen = colour.green;
+  this._valBlue = colour.blue;
   
   gpio.softPwmWrite(this._pinRed, this._valRed);
   gpio.softPwmWrite(this._pinGreen, this._valGreen);
@@ -69,13 +77,13 @@ Channel.prototype.setRgb = function (red, green, blue) {
   return 0;
 };
 
-Channel.prototype.fadeRgb = function (red, green, blue, time, callback) {
+Channel.prototype.fadeRgb = function (colour, time, callback) {
   // Dividing time (ms) by 20 gives 50Hz update rate
   this._fade.steps = math.round(time / 20);
 
-  this._fade.dR = (red - this._valRed) / this._fade.steps;
-  this._fade.dG = (green - this._valGreen) / this._fade.steps;
-  this._fade.dB = (blue - this._valBlue) / this._fade.steps;
+  this._fade.dR = (colour.red - this._valRed) / this._fade.steps;
+  this._fade.dG = (colour.green - this._valGreen) / this._fade.steps;
+  this._fade.dB = (colour.blue - this._valBlue) / this._fade.steps;
 
   this._fade.stepcount = 0;
   this._fade.active = true;
@@ -83,7 +91,7 @@ Channel.prototype.fadeRgb = function (red, green, blue, time, callback) {
   this._updateFade(callback);
 };
 
-Channel.prototype.pulseRgb = function (redStart, greenStart, blueStart, redEnd, greenEnd, blueEnd, fadeTime, pulseTime) {
+Channel.prototype.pulseRgb = function (startColour, endColour, fadeTime, pulseTime) {
   // Fades into start colour and then pulses between Start and End colors. 
   // fadeTime - governs how fast the LEDs fade to the start color.
   // pulseTime - governs how fast the pulse occurs in one direction,
@@ -91,11 +99,15 @@ Channel.prototype.pulseRgb = function (redStart, greenStart, blueStart, redEnd, 
   
   thisObj = this;
   
-  this.fadeRgb(redStart, greenStart, blueStart, fadeTime, function() {
+  this.fadeRgb(startColour, fadeTime, function() {
     thisObj._fade.pulse = true;
-    thisObj.fadeRgb(redEnd, greenEnd, blueEnd, pulseTime);  
+    thisObj.fadeRgb(endColour, pulseTime);  
   });
   
+}
+
+Channel.prototype.endPulse = function() {
+  this._fade.pulse = false;
 }
 
 Channel.prototype.close = function () {
