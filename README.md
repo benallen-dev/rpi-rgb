@@ -64,6 +64,6 @@ channel1.fadeRgb(blue, 2000, function() {
 });
 
 // After the timeout, all the above is likely done, so start pulsing red.
-setTimeout(channel1.pulseRgb(softRed, Red, 500, 2000), 10000);
+setTimeout(function(thisobj) { thisobj.pulseRgb(softRed, red, 800, 1500); }, 7000, channel1);
 ```
 
