@@ -117,6 +117,7 @@ Channel.prototype.strobeRgb = function(colour, pulseLength, duration, callback) 
   
   var halfPeriod = pulseLength; // time in ms between switching on/off
   this._fade.steps = math.round(duration / halfPeriod);
+  this._fade.stepcount = 0;
     
   // This line ensures ending in an 'off' state
   if (this._fade.steps % 2 === 0) this._fade.steps++; 
