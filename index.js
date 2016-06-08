@@ -43,6 +43,7 @@ function Channel(redPin, greenPin, bluePin) {
   this._fade = {};
   this._fade.active = false;
   this._fade.pulse = false;
+  this._fade.strobe = false;
   this._fade.steps = 0;
   this._fade.stepcount = 0;
   this._fade.dR = 0;
@@ -64,7 +65,7 @@ function Channel(redPin, greenPin, bluePin) {
   }
 };
     
-Channel.prototype.setRgb = function (colour) {
+Channel.prototype.setRgb = function (colour, callback) {
   
   this._valRed = colour.red;
   this._valGreen = colour.green;
@@ -73,6 +74,8 @@ Channel.prototype.setRgb = function (colour) {
   gpio.softPwmWrite(this._pinRed, this._valRed);
   gpio.softPwmWrite(this._pinGreen, this._valGreen);
   gpio.softPwmWrite(this._pinBlue, this._valBlue);
+  
+  if (typeof callback === 'function') callback();
   
   return 0;
 };
@@ -108,6 +111,26 @@ Channel.prototype.pulseRgb = function (startColour, endColour, fadeTime, pulseTi
 
 Channel.prototype.endPulse = function() {
   this._fade.pulse = false;
+}
+
+Channel.prototype.strobeRgb = function(colour, pulseLength, duration, callback) {
+  
+  var self = this;
+  
+  var halfPeriod = pulseLength; // time in ms between switching on/off
+  this._fade.steps = math.round(duration / halfPeriod);
+  console.log(this._fade.steps);
+  
+  // This line ensures ending in an 'off' state
+  if (this._fade.steps % 2 === 0) this._fade.steps++; 
+  
+  this._fade.dR = colour.red;
+  this._fade.dG = colour.green;
+  this._fade.dB = colour.blue;
+  
+  this._fade.strobe = true;
+  
+  this._updateStrobe(halfPeriod, callback);
 }
 
 Channel.prototype.close = function () {
@@ -166,3 +189,35 @@ Channel.prototype._updateFade = function (callback) {
     }
   }
 };
+
+Channel.prototype._updateStrobe = function (halfPeriod, callback) {
+
+  if (this._fade.strobe === false) return;
+  
+  switch (this._fade.stepcount % 2) {
+    case 0:
+      this.setRgb(new Colour(0,0,0));
+      break;
+    case 1:
+      this.setRgb(new Colour(this._fade.dR, this._fade.dG, this._fade.dG));
+      break;
+  }
+  
+  this._fade.stepcount++;
+
+  if (this._fade.stepcount < this._fade.steps) {
+    setTimeout(function(self, time, callback) {self._updateStrobe(time, callback);}, halfPeriod, this, halfPeriod, callback);
+  }
+  else {
+    this._fade.strobe = false;
+    this._fade.steps = 0;
+    this._fade.stepcount = 0;
+    this._fade.dR = 0;
+    this._fade.dG = 0;
+    this._fade.dB = 0;  
+    
+    // If callback present, call it
+    if (typeof callback === 'function') callback();
+  }
+  
+}
