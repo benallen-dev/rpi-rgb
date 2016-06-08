@@ -50,6 +50,8 @@ function Channel(redPin, greenPin, bluePin) {
   this._fade.dG = 0;
   this._fade.dB = 0;
   
+  this._timer;
+  
   gpio.pinMode(this._pinRed, gpio.OUTPUT);
   gpio.pinMode(this._pinGreen,gpio.OUTPUT);
   gpio.pinMode(this._pinBlue, gpio.OUTPUT);
@@ -109,8 +111,10 @@ Channel.prototype.pulseRgb = function (startColour, endColour, fadeTime, pulseTi
   
 }
 
-Channel.prototype.endPulse = function() {
+Channel.prototype.endPulse = function(callback) {
   this._fade.pulse = false;
+  clearTimeout(this.timer);
+  if (typeof callback === 'function') callback();
 }
 
 Channel.prototype.strobeRgb = function(colour, pulseLength, duration, callback) {
@@ -153,7 +157,7 @@ Channel.prototype._updateFade = function (callback) {
   fadeInfo.stepcount++;
   
   if (fadeInfo.stepcount < fadeInfo.steps) {
-    setTimeout(function (thisObj) { thisObj._updateFade(callback); }, 20, this);
+    this.timer = setTimeout(function (thisObj) { thisObj._updateFade(callback); }, 20, this);
   } 
   else {
     // End of fade
@@ -165,7 +169,7 @@ Channel.prototype._updateFade = function (callback) {
       fadeInfo.dB = -fadeInfo.dB;
       fadeInfo.stepcount = 0;
       
-      setTimeout(function (thisObj) { thisObj._updateFade(callback); }, 20, this);
+      this.timer = setTimeout(function (thisObj) { thisObj._updateFade(callback); }, 20, this);
     }
     else {
       //Clean up
