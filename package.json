@@ -1,6 +1,6 @@
 {
   "name": "rpi-rgb",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Implements PWM control of RGB lighting via Raspberry Pi GPIO",
   "main": "index.js",
   "scripts": {
