@@ -40,7 +40,7 @@ Shuts down the PWM channel.
 
 ## Example
 
-This example will start by fading in to blue, then strobing for approximately a second. Then it fades to yellow and starts to strobe red.
+This example will start by fading in to blue, then strobing for approximately a second. Then it fades to yellow and starts to pulse red.
 
 ```javascript
 var RgbChannel = require('rpi-rgb').Channel;
