@@ -73,9 +73,9 @@ Channel.prototype.setRgb = function (colour, callback) {
   this._valGreen = colour.green;
   this._valBlue = colour.blue;
   
-  gpio.softPwmWrite(this._pinRed, this._valRed);
-  gpio.softPwmWrite(this._pinGreen, this._valGreen);
-  gpio.softPwmWrite(this._pinBlue, this._valBlue);
+  gpio.softPwmWrite(this._pinRed, math.floor(this._valRed));
+  gpio.softPwmWrite(this._pinGreen, math.floor(this._valGreen));
+  gpio.softPwmWrite(this._pinBlue, math.floor(this._valBlue));
   
   if (typeof callback === 'function') callback();
   
@@ -114,6 +114,7 @@ Channel.prototype.pulseRgb = function (startColour, endColour, fadeTime, pulseTi
 Channel.prototype.endPulse = function(callback) {
   this._fade.pulse = false;
   clearTimeout(this.timer);
+  
   if (typeof callback === 'function') callback();
 }
 
