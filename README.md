@@ -20,11 +20,11 @@ Colours in rpi-rgb are defined as objects with red, green and blue properties be
 
 ## Methods
 
-### .setRgb (myColour)
-Immediately sets desired colour, colour values described in percent.
+### .setRgb (myColour, callback)
+Immediately sets desired colour, with optional callback function.
 
-### .fadeRgb (myColour, time)
-Fades to desired colour linearly, over `time` ms.
+### .fadeRgb (myColour, time, callback)
+Fades to desired colour linearly, over `time` ms. Optional callback.
 
 ### .pulseRgb (startColour, endColour, fadeTime, pulseTime)
 First, fades to `startColour` over `fadeTime` ms as with `.fadeRgb`, but then fades back and forth between this initial colour and `endColour`. In this case, pulseTime is the time in ms fading from one colour to the next, e.g. the total period is 2*`pulseTime`.
@@ -32,6 +32,33 @@ First, fades to `startColour` over `fadeTime` ms as with `.fadeRgb`, but then fa
 ### .endPulse()
 Stops the pulse effect.
 
+### .strobeRgb(colour, pulselength, duration, callback)
+Creates a stroboscope effect where the output is either switched off, or set to `colour`. This switch happens every `pulselength`ms, for a total duration of `duration`ms. Optional callback.
+
 ### .close()
 Shuts down the PWM channel.
+
+## Example
+
+```javascript
+var RgbChannel = require('rpi-rgb').Channel;
+var Colour = require('rpi-rgb').Colour;
+
+var channel1 = new RgbChannel(23,21,22);
+
+var red = new Colour(100,0,0);
+var softRed = new Colour(10,0,0);
+var blue = new Colour(0,100,0);
+var white = new Colour(100,100,100);
+var yellow = new Colour(100,100,0);
+
+channel1.fadeRgb(blue, 2000, function() {
+  
+  channel1.strobeRgb(white, 18, 1000, function() {
+    channel1.fadeRgb(yellow, 700);
+  });
+});
+
+setTimeout(channel1.pulseRgb(softRed, Red, 500, 2000), 10000);
+```
 
