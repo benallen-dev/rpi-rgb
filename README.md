@@ -40,6 +40,8 @@ Shuts down the PWM channel.
 
 ## Example
 
+This example will start by fading in to blue, then strobing for approximately a second. Then it fades to yellow and starts to strobe red.
+
 ```javascript
 var RgbChannel = require('rpi-rgb').Channel;
 var Colour = require('rpi-rgb').Colour;
@@ -52,13 +54,16 @@ var blue = new Colour(0,100,0);
 var white = new Colour(100,100,100);
 var yellow = new Colour(100,100,0);
 
+// Start by fading to blue.
 channel1.fadeRgb(blue, 2000, function() {
-  
+  // When that's done, strobe.
   channel1.strobeRgb(white, 18, 1000, function() {
+    // After strobing, fade to yellow.
     channel1.fadeRgb(yellow, 700);
   });
 });
 
+// After the timeout, all the above is likely done, so start pulsing red.
 setTimeout(channel1.pulseRgb(softRed, Red, 500, 2000), 10000);
 ```
 
