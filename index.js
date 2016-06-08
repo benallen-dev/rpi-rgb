@@ -73,6 +73,8 @@ Channel.prototype.setRgb = function (colour, callback) {
   this._valGreen = colour.green;
   this._valBlue = colour.blue;
   
+  clearInterval(this._timer);
+  
   gpio.softPwmWrite(this._pinRed, math.floor(this._valRed));
   gpio.softPwmWrite(this._pinGreen, math.floor(this._valGreen));
   gpio.softPwmWrite(this._pinBlue, math.floor(this._valBlue));
