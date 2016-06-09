@@ -69,11 +69,11 @@ function Channel(redPin, greenPin, bluePin) {
     
 Channel.prototype.setRgb = function (colour, callback) {
   
+  clearInterval(this._timer);
+  
   this._valRed = colour.red;
   this._valGreen = colour.green;
   this._valBlue = colour.blue;
-  
-  clearInterval(this._timer);
   
   gpio.softPwmWrite(this._pinRed, math.floor(this._valRed));
   gpio.softPwmWrite(this._pinGreen, math.floor(this._valGreen));
@@ -85,6 +85,15 @@ Channel.prototype.setRgb = function (colour, callback) {
 };
 
 Channel.prototype.fadeRgb = function (colour, time, callback) {
+  
+  // Don't interrupt strobing, try again in ~20ms
+  if (this._fade.strobe === true) {
+    setTimeout( function(self, colour, time, callback){
+      self.fadeRgb(colour, time, callback);
+    }, 20, this, colour, time, callback);
+    return;  
+  } 
+  
   // Dividing time (ms) by 20 gives 50Hz update rate
   this._fade.steps = math.round(time / 20);
 
