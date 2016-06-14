@@ -213,7 +213,7 @@ Channel.prototype._updateStrobe = function (halfPeriod, callback) {
       this.setRgb(new Colour(0,0,0));
       break;
     case 1:
-      this.setRgb(new Colour(this._fade.dR, this._fade.dG, this._fade.dG));
+      this.setRgb(new Colour(this._fade.dR, this._fade.dG, this._fade.dB));
       break;
   }
   
